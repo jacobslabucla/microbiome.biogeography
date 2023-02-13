@@ -7,9 +7,9 @@
 generate_adiv_plots(input_data, input_metadata, X, Y, fillvariable, min, max)
 }
 \arguments{
-\item{input_data}{filepath to a csv containing "SampleID", and alpha diversity metrics as columns. "SampleID" must be typed as such.}
+\item{input_data}{dataframe containing "SampleID", and alpha diversity metrics as columns. "SampleID" must be typed as such.}
 
-\item{input_metadata}{csv containing "SampleID" and all relevant metadata. Can contain more SampleIDs than are in input_data.}
+\item{input_metadata}{dataframe containing "SampleID" and all relevant metadata. Can contain more SampleIDs than are in input_data.}
 
 \item{X}{what you want to plot on X axis. Available options are Site, Type, or Site_General.}
 
@@ -29,8 +29,8 @@ Can be used for any continuous variable (Y) against X (Site_General, Site, Type)
 }
 \examples{
 
-generate_adiv_plots("ImmDef-Mouse-Biogeography-Analysis/alpha_diversity_WTCohort.csv", 
-"ImmDef-Mouse-Biogeography-Analysis/Full-Metadata.csv",
+generate_adiv_plots(input_dataframe, 
+metadata_frame,
 Site, observed_otus, Site,0,500) +
 ggtitle ("Mucosal") +
 theme(plot.title = element_text(hjust = 0.5)) +
