@@ -1,2 +1,2 @@
 # microbiome.biogeography
-Scripts used in mouse biogeography project. 
+Functions written for the mouse biogeography project.
