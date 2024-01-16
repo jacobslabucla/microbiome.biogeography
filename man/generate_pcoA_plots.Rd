@@ -15,7 +15,7 @@ generate_pcoA_plots(
 \arguments{
 \item{title}{string containing title of plot}
 
-\item{colorvariable}{the variable you want to color the points by. Available options are Site, Type, or Site_General.}
+\item{colorvariable}{string containing the variable you want to color the points by. Available options are "Site", "Type", or "Site_General".}
 
 \item{colorvector}{named character vector with colors assigned to levels of colorvariable}
 

@@ -162,7 +162,6 @@ PERMANOVA_repeat_measures <- function(
 #' @param permute_columns_vector a character vector containing names of metadata columns that repeat per subject (e.g. Timepoint)
 #' @param subject_metadata_vector a character vector containing names of metadata columns consistent for each subject with MouseID as the last element (e.g. Age, Sex, MouseID)
 #' @return res.aov object from adonis
-#' @example run_repeated_PERMANOVA(path_to_distance_matrix_tsv = "CS-Facility-Analysis/RPCA/rpca_dm/dm_rpca_Luminal_Colon_CS-Facility-ComBat-Adjusted-ASV.qza.txt/distance-matrix.tsv", path_to_metadata_csv = "CS-Facility-Analysis/CS_Facility_Metadata.csv",permute_columns_vector = permute_within,subject_metadata_vector=subject_data)
 #' @export 
 #'
 run_repeated_PERMANOVA <- function(path_to_distance_matrix_tsv,path_to_metadata_csv,permute_columns_vector, subject_metadata_vector){

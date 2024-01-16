@@ -9,7 +9,7 @@
 #' @return a ggplot2 object encoding a heatmap
 #' @export 
 
-install.packages(c(""))
+
 
 generate_interregional_taxa_dotplot_TYPE <- function(path_to_significant_results_tsv, dataset,titlestring, colorvector){
   ##### test function inputs 
@@ -104,8 +104,9 @@ generate_interregional_taxa_dotplot_TYPE <- function(path_to_significant_results
     theme(legend.position = "none")+
     ggtitle({{titlestring}}) +
     theme(plot.title = element_text(hjust = 0.5))
-  
+
+  return(g1)
 }
 
-return(g1)
-}
+
+
