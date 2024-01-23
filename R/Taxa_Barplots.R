@@ -168,3 +168,78 @@ generate_L2_taxa_plots <- function(input_data, titlestring,greppattern, fillvect
   
   
 }
+
+process_taxonomy_data <- function(file_path) {
+  input_data <- readr::read_csv(here(file_path))
+  input_data <- as.data.frame(input_data)
+  row.names(input_data)<- input_data[,1]
+  input_data <- input_data[,-1]
+  
+  
+  taxa<-colnames(input_data)
+  taxa <- gsub(";",".",taxa)
+  colnames <- strsplit(taxa, ".o__")
+  
+  order=new_list(length(colnames(input_data)))
+  i=1
+  for (i in 1:length(colnames)) {
+    order[i] <- colnames[[i]][2]
+    i=i+1
+  }
+  
+  order<-unlist(order)
+  order <- strsplit(order, ".f__")
+  
+  family =new_list(length(colnames(input_data)))
+  i=1
+  for (i in 1:length(order)) {
+    family[i] <- order[[i]][2]
+    i=i+1
+  }
+  
+  order<-as.list(order)
+  
+  i=1
+  for (i in 1:length(family)) {
+    if (isFALSE(family[[i]]==".g__")) {
+      family[[i]] = family[[i]] 
+    }
+    else {
+      family[[i]] <- paste0(order[[i]]," (o)")   
+      family[[i]] <- family[[i]][1]
+    }
+    i=i+1
+  }
+  
+  
+  family<-unlist(family)
+  family <- strsplit(family, ".g__")
+  
+  genus =new_list(length(colnames(input_data)))
+  i=1
+  for (i in 1:length(family)) {
+    genus[i] <- family[[i]][2]
+    i=i+1
+  }
+  
+  family<-as.list(family)
+  
+  i=1
+  for (i in 1:length(genus)) {
+    if (isFALSE(genus[[i]]=="NA")) {
+      genus[[i]] = genus[[i]] 
+    }
+    else {
+      
+      genus[[i]] <- paste0(family[[i]]," (f)")   
+    }
+    i=i+1
+  }
+  
+  
+  colnames(input_data) <-as.character(genus)
+  
+  input_data <- input_data[,!grepl("Mitochondria", colnames(input_data))] 
+  input_data <- input_data[,!grepl("Chloroplast", colnames(input_data))] 
+  return(input_data)
+}
