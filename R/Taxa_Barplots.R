@@ -92,9 +92,7 @@ generate_L6_taxa_plots <- function(path_to_RDS, titlestring,greppattern, fillvec
   
 }
 
-#' Generate taxa summary plots by phyla showing only the top 0.1% most abundant 
-#'
-#' 
+#' Generate taxa summary plots by phyla
 #' Plot does not have legend - legends were graphed separately 
 #' 
 #' 
@@ -103,6 +101,7 @@ generate_L6_taxa_plots <- function(path_to_RDS, titlestring,greppattern, fillvec
 #' @param titlestring title of plot
 #' @param greppattern ".*s__" for species 
 #' @param graphby a string, can pass "Site" or "Type"
+#' @param fillvector a named character vector for color legend
 #' @return a ggplot2 object which you can then further customize by adding ggplot2 functions
 #' @export
 #' @examples
@@ -114,7 +113,7 @@ generate_L6_taxa_plots <- function(path_to_RDS, titlestring,greppattern, fillvec
 #'    "Site")
 #' 
 #' 
-library(dplyr)
+
 generate_L2_taxa_plots <- function(input_data, titlestring,greppattern, fillvector,graphby){
   titlestring<-c(titlestring)
   L2_lum<-read.csv(input_data)
@@ -170,6 +169,23 @@ generate_L2_taxa_plots <- function(input_data, titlestring,greppattern, fillvect
   
 }
 
+#' Generate taxa summary plots by phyla
+#' Plot does not have legend - legends were graphed separately 
+#' 
+#' 
+#' @author Julianne Yang
+#' @param file_path filepath to the L6.csv file where you can wrangle names
+#' @return dataframe with wrangled names 
+#' @export
+#' @examples
+#' 
+#' generate_L2_taxa_plots("CS-Facility-Analysis/Taxa-Barplots/Luminal_level-6.RDS", 
+#' "Luminal ( > 0.1% Relative Abundance)",
+#'  ".*g__",
+#'   assign_cols,
+#'    "Site")
+#' 
+#' 
 process_taxonomy_data <- function(file_path) {
   input_data <- readr::read_csv(here(file_path))
   input_data <- as.data.frame(input_data)
@@ -244,6 +260,24 @@ process_taxonomy_data <- function(file_path) {
   input_data <- input_data[,!grepl("Chloroplast", colnames(input_data))] 
   return(input_data)
 }
+
+#' Generate taxa summary plots by phyla
+#' Plot does not have legend - legends were graphed separately 
+#' 
+#' 
+#' @author Julianne Yang
+#' @param filepath filepath to the RDS file with wrangled names 
+#' @return unique character vector of genera which will go in the plot
+#' @export
+#' @examples
+#' 
+#' generate_L2_taxa_plots("CS-Facility-Analysis/Taxa-Barplots/Luminal_level-6.RDS", 
+#' "Luminal ( > 0.1% Relative Abundance)",
+#'  ".*g__",
+#'   assign_cols,
+#'    "Site")
+#' 
+#' 
 
 get_genera_from_plot <- function(filepath){
   L2_lum<-readr::read_rds(here(filepath))
