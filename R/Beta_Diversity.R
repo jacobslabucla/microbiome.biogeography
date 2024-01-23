@@ -90,3 +90,53 @@ generate_pcoA_plots <- function(ordination_file, metadata, title, colorvariable,
     p
   }
 }
+
+
+generate_pcoA_plots_shotgun <- function(ordination_file, metadata, title, colorvariable,colorvector){
+  
+  #store PC1 and Pc2
+  PC1<-data[5,1]
+  PC1 <-round(as.numeric(PC1)*100, digits=1)
+  PC2<-data[5,2]
+  PC2 <-round(as.numeric(PC2)*100, digits=1)
+  PC1 <-as.character(PC1)
+  str_PC1<-paste0("PC 1 (", PC1,"%)")
+  str_PC2<-paste0("PC 2 (", PC2, "%)")
+  
+  #edit dataframe
+  data<-data[,1:4]
+  data <- dplyr::slice(data, 1:(n() - 4))     # Apply slice & n functions
+  data<-data[-c(1,2,3,4,5,6,7,8,9),]
+  
+  #rename columns
+  colnames(data)[1] <- c("sampleid")
+  colnames(data)[2] <- c("PC1")  
+  colnames(data)[3] <- c("PC2")  
+  colnames(data)[4] <- c("PC3")  
+  # data$SampleID<-gsub(".","",data$SampleID)
+  #append metadata
+  intermediate<- (merge(data, metadata, by = 'sampleid'))
+  data<- intermediate
+  
+  #declare factors
+  data$Site = factor(data$Site, levels= c("Distal_Colon","Jejunum"))
+  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Jejunum" = "Jej"))
+  data$PC1 <- as.numeric(data$PC1)
+  data$PC2 <- as.numeric(data$PC2)
+  colorvariable <- as.factor(colorvariable)
+  if(colorvariable =="Site"){
+    p<- ggplot2::ggplot(data, aes(x=PC1, y=PC2, colour=Site)) + 
+      #geom_point(size=3) + 
+      geom_point(aes(fill=Site), colour="black", pch=21, size=3) +
+      scale_fill_manual(name="", values={{colorvector}}) +
+      #scale_color_viridis_d()+
+      xlab(str_PC1) +
+      ylab(str_PC2) +
+      cowplot::theme_cowplot(12)+
+      theme(legend.position="top",legend.justification = "center") 
+    #coord_fixed(ratio=1/2)+
+    #labs(title= paste0({{title}}, " RPCA")) 
+    p
+  }
+  
+}

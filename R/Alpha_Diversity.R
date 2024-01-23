@@ -47,9 +47,8 @@ generate_adiv_plots <- function(input_data, input_metadata, X, Y, fillvariable, 
   data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Proximal_Colon"="PC", "Cecum"= "Cec", "Ileum"="Ile", "Jejunum" = "Jej", "Duodenum"= "Duo"))
   
   #Ensure correct ordering of levels 
-  data$Site_General <- factor(data$Site_General, levels = c("SI", "Colon"))
-  data$Site <- factor(data$Site, levels = c("Duo", "Jej", "Ile", "Cec", "PC", "DC"))
-  data$Type <- factor(data$Type, levels = c("Lum","Muc"))
+  data$Site <- factor(data$Site, levels = c("Jej", "DC"))
+ 
   
   ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
     geom_violin(alpha=0.25,position=position_dodge(width=.75),size=1,color="black",draw_quantiles=c(0.5))+
@@ -61,4 +60,42 @@ generate_adiv_plots <- function(input_data, input_metadata, X, Y, fillvariable, 
   
 }
 
+generate_adiv_plots_shotgun <- function(chao1_filepath,
+                                        otus_filepath,
+                                        pielou_filepath,
+                                        shannon_filepath,
+                                        metadata_filepath, X, Y, fillvariable, min, max){
+  chao1<- readr::read_delim(here(chao1_filepath),delim="\t")
+  otus<- readr::read_delim(here(otus_filepath),delim="\t")
+  pielou<- readr::read_delim(here(pielou_filepath),delim="\t")
+  shannon<- readr::read_delim(here(shannon_filepath),delim="\t")
+  
+  names(chao1)
+  temp1<- merge(chao1,otus, by="...1")
+  temp2<- merge(pielou,shannon, by="...1")
+  data<-merge(temp1,temp2,by="...1")
+  data$sampleid <- data$`...1`
+  
+  metadata <-readr::read_delim(here(metadata_filepath),delim = "\t") #mapping file
+  site_metadata <- metadata %>% select("Site", "sampleid")
+  intermediate<- (merge(data, site_metadata, by = 'sampleid'))
+  data<- intermediate
+
+  print(summary(data$observed_features))
+  print(summary(data$pielou_evenness))
+  
+  #Shorten site names 
+  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Jejunum" = "Jej"))
+  
+  data$Site <- factor(data$Site, levels = c("Jej","DC"))
+
+  ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
+    geom_violin(alpha=0.25,position=position_dodge(width=.75),size=1,color="black",draw_quantiles=c(0.5))+
+    scale_fill_viridis_d()+
+    geom_point(size=2,position=position_jitter(width=0.25),alpha=1)+
+    theme_cowplot(12) +
+    ylim(min,max) +
+    theme(legend.position = "none")
+  
+}
 
