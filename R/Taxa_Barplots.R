@@ -243,3 +243,23 @@ process_taxonomy_data <- function(file_path) {
   input_data <- input_data[,!grepl("Chloroplast", colnames(input_data))] 
   return(input_data)
 }
+
+get_genera_from_plot <- function(filepath){
+  L2_lum<-readr::read_rds(here(filepath))
+  L2_lum<- as.matrix(L2_lum)
+  L2_lum<-make_relative(L2_lum)
+  L2_lum<-as.data.frame(t(L2_lum))
+  toptaxa<- rowMeans(L2_lum)
+  L2_lum$averageRA <-toptaxa/6
+  L2_lum <- L2_lum %>% mutate(keeptaxa = ifelse(averageRA >0.001, row.names(L2_lum), "Other"))
+  L2_lum <-select(L2_lum,-averageRA)
+  
+  taxa<-L2_lum$keeptaxa
+  L2_lum <- select(L2_lum,-keeptaxa)
+  L2_lum <- as.matrix(sapply(L2_lum,as.numeric))
+  L2_lum <- as.data.frame(prop.table(L2_lum,2))
+  taxa<-gsub(".*g__","",taxa )
+  
+  L2_lum$Taxa <-taxa
+  return(unique(L2_lum$Taxa))
+}
