@@ -114,6 +114,7 @@ generate_L6_taxa_plots <- function(path_to_RDS, titlestring,greppattern, fillvec
 #'    "Site")
 #' 
 #' 
+library(dplyr)
 generate_L2_taxa_plots <- function(input_data, titlestring,greppattern, fillvector,graphby){
   titlestring<-c(titlestring)
   L2_lum<-read.csv(input_data)
@@ -247,11 +248,11 @@ process_taxonomy_data <- function(file_path) {
 get_genera_from_plot <- function(filepath){
   L2_lum<-readr::read_rds(here(filepath))
   L2_lum<- as.matrix(L2_lum)
-  L2_lum<-make_relative(L2_lum)
+  L2_lum<-funrar::make_relative(L2_lum)
   L2_lum<-as.data.frame(t(L2_lum))
   toptaxa<- rowMeans(L2_lum)
   L2_lum$averageRA <-toptaxa/6
-  L2_lum <- L2_lum %>% mutate(keeptaxa = ifelse(averageRA >0.001, row.names(L2_lum), "Other"))
+  L2_lum <- L2_lum %>% dplyr::mutate(keeptaxa = ifelse(averageRA >0.001, row.names(L2_lum), "Other"))
   L2_lum <-select(L2_lum,-averageRA)
   
   taxa<-L2_lum$keeptaxa
