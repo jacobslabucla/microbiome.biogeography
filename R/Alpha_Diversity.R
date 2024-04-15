@@ -47,13 +47,13 @@ generate_adiv_plots <- function(input_data, input_metadata, X, Y, fillvariable, 
   data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Proximal_Colon"="PC", "Cecum"= "Cec", "Ileum"="Ile", "Jejunum" = "Jej", "Duodenum"= "Duo"))
   
   #Ensure correct ordering of levels 
-  data$Site <- factor(data$Site, levels = c("Jej", "DC"))
+  data$Site <- factor(data$Site, levels = c("Duo","Jej", "Ile","Cec","PC","DC"))
  
   
   ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
     geom_violin(alpha=0.25,position=position_dodge(width=.75),size=1,color="black",draw_quantiles=c(0.5))+
     scale_fill_viridis_d()+
-    geom_point(size=2,position=position_jitter(width=0.25),alpha=1)+
+    geom_point(size=1,position=position_jitter(width=0.25),alpha=1)+
     theme_cowplot(12) +
     ylim(min,max) +
     theme(legend.position = "none")
@@ -89,6 +89,49 @@ generate_adiv_plots_shotgun <- function(chao1_filepath,
   
   data$Site <- factor(data$Site, levels = c("Jej","DC"))
 
+  ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
+    geom_violin(alpha=0.25,position=position_dodge(width=.75),size=1,color="black",draw_quantiles=c(0.5))+
+    scale_fill_viridis_d()+
+    geom_point(size=2,position=position_jitter(width=0.25),alpha=1)+
+    theme_cowplot(12) +
+    ylim(min,max) +
+    theme(legend.position = "none")
+  
+}
+
+generate_adiv_plots_donors <- function(chao1_filepath,
+                                        otus_filepath,
+                                        pielou_filepath,
+                                        shannon_filepath,
+                                        metadata_filepath, X, Y, fillvariable, min, max){
+  chao1<- readr::read_delim(here(chao1_filepath),delim="\t")
+  otus<- readr::read_delim(here(otus_filepath),delim="\t")
+  pielou<- readr::read_delim(here(pielou_filepath),delim="\t")
+  shannon<- readr::read_delim(here(shannon_filepath),delim="\t")
+  
+  names(chao1)
+  temp1<- merge(chao1,otus, by="...1")
+  temp2<- merge(pielou,shannon, by="...1")
+  data<-merge(temp1,temp2,by="...1")
+  data$SampleID <- data$`...1`
+  
+  metadata <-readr::read_delim(here(metadata_filepath),delim = "\t") #mapping file
+  site_metadata <- metadata %>% select("Site", "SampleID")
+  intermediate<- (merge(data, site_metadata, by = 'SampleID'))
+  data<- intermediate
+  
+  print(summary(data$observed_features))
+  print(summary(data$pielou_evenness))
+  
+  #Shorten site names 
+  data$Type= factor(data$Type, levels=c("Luminal", "Mucosal"))
+  data$Type= plyr::revalue(data$Type, c("Luminal" = "Lum", "Mucosal" = "Muc"))
+  data$Site = factor(data$Site, levels= c("Distal_Colon", "Proximal_Colon", "Cecum", "Ileum", "Jejunum", "Duodenum"))
+  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Proximal_Colon"="PC", "Cecum"= "Cec", "Ileum"="Ile", "Jejunum" = "Jej", "Duodenum"= "Duo"))
+  
+  #Ensure correct ordering of levels 
+  data$Site <- factor(data$Site, levels = c("Duo","Jej", "Ile","Cec","PC","DC"))
+  
   ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
     geom_violin(alpha=0.25,position=position_dodge(width=.75),size=1,color="black",draw_quantiles=c(0.5))+
     scale_fill_viridis_d()+

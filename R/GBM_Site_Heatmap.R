@@ -85,7 +85,7 @@ generate_GBM_heat_map_by_site <- function(path_to_all_results_tsv, targetvector,
   data$annotation= factor(as.character(data$annotation), levels = names(y))
   ggplotdata<-data
     
-  ggplot(ggplotdata, aes(x = value, y=annotation)) + 
+  g1 <-ggplot(ggplotdata, aes(x = value, y=annotation)) + 
       geom_tile(aes(fill = coef_d),colour="white",size=0.25) +
       geom_text(aes(label=asterisk)) +
       scale_fill_stepsn(breaks=bk, values = NULL, colors = cols) +

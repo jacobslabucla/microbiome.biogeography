@@ -47,8 +47,8 @@ generate_L6_taxa_plots <- function(path_to_RDS, titlestring,greppattern, fillvec
   L2_lum$Value <- L2_lum$Value * 100
   
   if({{graphby}} == "Site"){
-    L2_lum$Site = plyr::revalue(L2_lum$Site, c("Distal_Colon"="DC", "Proximal_Colon" = "PC", "Cecum" ="Cec","Ileum"="Ile", "Jejunum"="Jej", "Duodenum"= "Duo"))
-    L2_lum$Site = factor(L2_lum$Site, levels=c("Duo", "Jej", "Ile", "Cec", "PC", "DC"))
+    L2_lum$Site = plyr::revalue(L2_lum$Site, c("Distal_Colon"="DC", "Proximal_Colon" = "PC", "Cecum" ="C","Ileum"="I", "Jejunum"="J", "Duodenum"= "D"))
+    L2_lum$Site = factor(L2_lum$Site, levels=c("D", "J", "I", "C", "PC", "DC"))
   }
   else if ({{graphby}}=="Type"){ 
     L2_lum$Site = plyr::revalue(L2_lum$Site, c("Luminal"="Lum", "Mucosal" = "Muc"))
@@ -81,7 +81,7 @@ generate_L6_taxa_plots <- function(path_to_RDS, titlestring,greppattern, fillvec
     scale_fill_manual(values = cols)+
     theme(legend.position = "none")+
     theme_cowplot(12) +
-    ylab("% Relative Abundance") +
+    ylab("") +
     xlab("")+
     labs(fill="") +
     ggtitle(titlestring) +
@@ -128,8 +128,8 @@ generate_L2_taxa_plots <- function(input_data, titlestring,greppattern, fillvect
   L2_lum$Taxa <-taxa
   L2_lum<- tidyr::pivot_longer(L2_lum, -c(Taxa), values_to ="Value", names_to ="Site")
   if({{graphby}} == "Site"){
-    L2_lum$Site = plyr::revalue(L2_lum$Site, c("Distal_Colon"="DC", "Proximal_Colon" = "PC", "Cecum" ="Cec","Ileum"="Ile", "Jejunum"="Jej", "Duodenum"= "Duo"))
-    L2_lum$Site = factor(L2_lum$Site, levels=c("Duo", "Jej", "Ile", "Cec", "PC", "DC"))
+    L2_lum$Site = plyr::revalue(L2_lum$Site, c("Distal_Colon"="DC", "Proximal_Colon" = "PC", "Cecum" ="C","Ileum"="I", "Jejunum"="J", "Duodenum"= "D"))
+    L2_lum$Site = factor(L2_lum$Site, levels=c("D", "J", "I", "C", "PC", "DC"))
   }
   else if ({{graphby}}=="Type"){ 
     L2_lum$Site = plyr::revalue(L2_lum$Site, c("Luminal"="Lum", "Mucosal" = "Muc"))
@@ -158,7 +158,7 @@ generate_L2_taxa_plots <- function(input_data, titlestring,greppattern, fillvect
     scale_fill_manual(values = cols)+
     theme(legend.position = "right")+
     theme_cowplot(12) +
-    ylab("% Relative Abundance") +
+    ylab("") +
     xlab("")+
     labs(fill="")+
     ggtitle({{titlestring}}) +
@@ -294,6 +294,37 @@ get_genera_from_plot <- function(filepath){
   L2_lum <- as.matrix(sapply(L2_lum,as.numeric))
   L2_lum <- as.data.frame(prop.table(L2_lum,2))
   taxa<-gsub(".*g__","",taxa )
+  
+  L2_lum$Taxa <-taxa
+  return(unique(L2_lum$Taxa))
+}
+
+#' Generate taxa summary plots by phyla
+#' Plot does not have legend - legends were graphed separately 
+#' 
+#' 
+#' @author Julianne Yang
+#' @param filepath filepath to the csv file with wrangled names 
+#' @return unique character vector of genera which will go in the plot
+#' @export
+#' @examples
+#' 
+#' generate_L2_taxa_plots("CS-Facility-Analysis/Taxa-Barplots/Luminal_level-6.RDS", 
+#' "Luminal ( > 0.1% Relative Abundance)",
+#'  ".*g__",
+#'   assign_cols,
+#'    "Site")
+#' 
+#' 
+get_phyla_from_plot <- function(filepath){
+  L2_lum<-readr::read_csv(filepath)
+  L2_lum <- as.data.frame(t(L2_lum))
+  colnames(L2_lum)<- L2_lum[1,]
+  L2_lum <- L2_lum[-1,]
+  taxa<-row.names(L2_lum)
+  L2_lum <- as.matrix(sapply(L2_lum,as.numeric))
+  L2_lum <- as.data.frame(prop.table(L2_lum,2))
+  taxa<-gsub(".*p__","",taxa )
   
   L2_lum$Taxa <-taxa
   return(unique(L2_lum$Taxa))

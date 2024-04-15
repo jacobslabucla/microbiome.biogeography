@@ -118,7 +118,7 @@ PERMANOVA_repeat_measures <- function(
   
   # Test statistic from non-permuted data
   mtdat <- cbind(permute_within, block_data[blocks,,drop=F])
-  ad <- adonis(D ~ ., permutations=0, data=mtdat[, metadata_order, drop=F])
+  ad <- adonis2(D ~ ., permutations=0, data=mtdat[, metadata_order, drop=F])
   R2 <- ad$aov.tab$R2
   names(R2) <- rownames(ad$aov.tab)
   
@@ -130,7 +130,7 @@ PERMANOVA_repeat_measures <- function(
     mtdat <- cbind(
       permute_within[within.i,,drop=F],
       block_data[block.i,,drop=F][blocks,,drop=F])
-    perm.ad <- adonis(D ~ ., permutations=0, data=mtdat[, metadata_order, drop=F])
+    perm.ad <- adonis2(D ~ ., permutations=0, data=mtdat[, metadata_order, drop=F])
     
     nullsamples[,i] <- perm.ad$aov.tab$R2
   }
