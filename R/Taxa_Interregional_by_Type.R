@@ -192,87 +192,64 @@ generate_interregional_taxa_barplot_SITE <- function(path_to_significant_results
   return(g1)
   
 }
-generate_interregional_taxa_barplot_SITE <- function(path_to_significant_results_tsv, dataset,titlestring, colorvector){
+
+
+generate_interregional_taxa_barplot_TYPE <- function(path_to_significant_results_tsv, titlestring, colorvector){
   ##### test function inputs 
   #annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/Maasllin2 Site Genus Level/genus_Luminal_taxonomy.csv", header=TRUE)
-  luminal <- read.delim("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/differential_genera_site/L6-ColonRef-CLR-Lum-ComBat-SeqRunLineSexSite_General-1-MsID/significant_results.tsv")
-  luminal <- read.delim("Donors-Analysis/differential_genera_site/L6-ColonRef-CLR-Lum-ComBat-SeqRunSexSite_General-1-MsID-DonorID/significant_results.tsv")
-  luminal <- read.delim("CS-Facility-Analysis/Site_L6/L6-DCvsAll-CLR-Lum-ComBat-SeqRunSexSite_General-1-MsID/significant_results.tsv")
-  #luminal <- read.delim("Humanized-Biogeography-Analysis/Source RPCA/Hum/Maaslin2 Site Genus/L6-DCvsAll-CLR-Lum-ComBat-SeqRunSexSite_General-1-MsID/significant_results.tsv")
+  #luminal <- read.delim("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/Maaslin2 Type Genus Level/L6-LumRef-CLR-Colon-ComBat-SeqRunLineSexSiteType-1-MsID/significant_results.tsv")
+  #luminal <- read.delim("CS-Facility-Analysis/Site_L6/L6-DCvsAll-CLR-Lum-ComBat-SeqRunSexSite_General-1-MsID/significant_results.tsv")
+  #luminal <- read.delim("Donors-Analysis/differential_genera_type/L6-LumRef-CLR-Colon-ComBat-SeqRunSexSiteType-1-MsID/significant_results.tsv")
   
-  #cols <- viridis::viridis(2)
-  #####
+  luminal <- read.delim(here(path_to_significant_results_tsv))
   
-  luminal<-read.table(path_to_significant_results_tsv, header=TRUE)
-  luminal <- luminal %>% filter(metadata=="Site_General" & qval<0.05)
+  significant_taxa <- luminal %>% filter(metadata=="Type" & qval<0.05)
+  df <- significant_taxa$feature
+  df<-as.data.frame(df)
+  df$feature <- df[,1]
+  
+  df$Phylum <- gsub(".*\\.p__", "", df$feature)
+  df$Phylum <- gsub("\\.c__.*", "", df$Phylum)
+  df$Order <- gsub(".*\\.o__", "", df$feature)
+  df$Order <- gsub("\\.f__.*", "", df$Order)
+  df$Order <- paste0(df$Order, " (o)")
+  df$Family <- gsub(".*\\.f__", "", df$feature)
+  df$Family <- gsub("\\.g__.*", "", df$Family)
+  df$Family<- paste0(df$Family, " (f)")
+  df$Genus <- gsub(".*\\.g__", "", df$feature)
+  df$Genus <- gsub("\\.g__.*", "", df$Genus)
+  df$Species <- gsub(".*\\.s__", "", df$feature)
+  
+  df$Family_Species <- paste(df$Family,  gsub("^.*_","",df$Species))
+  df$Order_Species <- paste(df$Order,  gsub("^.*_","",df$Species))
+  
+  df <- df %>%
+    mutate(level1 = ifelse(nchar(Genus) != 0, Genus, Family))
+  df <- df %>%
+    mutate(annotation = ifelse(level1!= " (f)", level1, Order))
+  
+  luminal<-readr::read_delim(here(path_to_significant_results_tsv),delim="\t")
+  luminal <- luminal %>% filter(metadata=="Type" & qval<0.05)
   cols=c(colorvector)
   
   
-  if(dataset=="ucla_original_lum"){
-    annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/differential_genera_site/Genus_Luminal_taxonomy.csv", header=TRUE)
-    #luminal$feature<-gsub("X", "", luminal$feature)
-    
-  }
-  
-  if(dataset=="ucla_original_muc"){
-    annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/differential_genera_site/Genus_Mucosal_taxonomy.csv", header=TRUE)
-    #luminal$feature<-gsub("X", "", luminal$feature)
-    
-  }
-  
-  
-  if(dataset=="ucla_validation"){
-    annotation <- read.csv("ImmDef-Mouse-Biogeography-Analysis/genus_Mucosal_taxonomy.csv", header=TRUE)
-    annotation$feature<-annotation$X.OTU.ID
-    annotation$feature<-gsub("/",".",annotation$feature)
-    annotation$feature<-gsub("-",".",annotation$feature)
-  }
-  
-  if(dataset=="cs"){
-    annotation <- read.csv("CS-Facility-Analysis/Type_L6/genus_taxonomy.csv", header=TRUE)
-    annotation$feature<-gsub("; ",".",annotation$feature)
-    annotation$feature<-gsub(".s__.*","",annotation$feature)
-    annotation$feature<-gsub("-",".",annotation$feature)
-    annotation$feature<-gsub("/",".",annotation$feature)
-  }
-  
-  if(dataset=="spf_gavage"){
-    annotation <- read.csv("Humanized-Biogeography-Analysis/Genus_Taxonomy.csv", header=TRUE)
-    annotation <- select(annotation, -c("X.OTU.ID", "QIIME_seqs"))
-    annotation$feature<-annotation$taxonomy
-    annotation$feature<-gsub("; ",".",annotation$feature)
-    annotation$feature<-gsub("\\.s__.*","",annotation$feature)
-    annotation$feature<-gsub("-",".",annotation$feature)
-    annotation$feature<-gsub("/",".",annotation$feature)
-  }
-  
-  if(dataset=="hum_gavage"){
-    annotation <- read.csv("Humanized-Biogeography-Analysis/Genus_Taxonomy.csv", header=TRUE)
-    annotation <- select(annotation, -c("X.OTU.ID", "QIIME_seqs"))
-    annotation$feature<-annotation$taxonomy
-    annotation$feature<-gsub("; ",".",annotation$feature)
-    annotation$feature<-gsub("\\.s__.*","",annotation$feature)
-    annotation$feature<-gsub("-",".",annotation$feature)
-    annotation$feature<-gsub("/",".",annotation$feature)
-  }
-  
-  data<- (merge(luminal, annotation, by = 'feature'))
+  data<- (merge(luminal, df, by = 'feature'))
   testing <- luminal$feature
   testing2<-(data$feature)
   print("Dropped features: (should say 0 )")
   print(c(setdiff(testing, testing2), setdiff(testing2, testing)))
   
   
-  data <- data %>% select(c("feature","coef", "qval", "annotation"))
+  data <- data %>% select(c("feature","coef", "qval", "Phylum", "Genus","annotation"))
   data <- unique(data)
-  #data$Family_Genus<-paste(data$Family,data$Genus,sep=" : ")
-  #data$Phylum_Genus<-paste(data$Phylum,data$Genus,sep=" : ")
+  data$Family_Genus<-paste(data$Family,data$Genus,sep=" : ")
+  data$Phylum_Genus<-paste(data$Phylum,data$Genus,sep=" : ")
   
   # Make plot 
-  res_plot <- data %>% select(c("coef", "qval","annotation"))
+  res_plot <- data %>% select(c("coef", "qval","Genus","annotation"))
   res_plot <- unique(res_plot)
   res_plot <- res_plot %>%
-    mutate(site = ifelse(coef< 0, "Colon", "SI"))
+    mutate(site = ifelse(coef< 0, "Luminal", "Mucosal"))
   
   y = tapply(res_plot$coef, res_plot$annotation, function(y) mean(y))  # orders the genera by the highest fold change of any ASV in the genus; can change max(y) to mean(y) if you want to order genera by the average log2 fold change
   y = sort(y, FALSE)   #switch to TRUE to reverse direction
@@ -282,103 +259,6 @@ generate_interregional_taxa_barplot_SITE <- function(path_to_significant_results
     arrange(coef) %>%
     filter(qval < 0.05, abs(coef) > 0) %>%
     ggplot2::ggplot(aes(coef, annotation, fill = site)) +
-    geom_bar(stat = "identity") +
-    cowplot::theme_cowplot(12) +
-    theme(axis.text.y = element_text(face = "italic")) +
-    scale_fill_manual(values = cols) +
-    labs(x = "Effect size (SI/Colon)",
-         y = "",
-         fill = "") +
-    theme(legend.position = "none")+
-    ggtitle({{titlestring}}) +
-    theme(plot.title = element_text(hjust = 0.5))
-  
-  return(g1)
-}
-
-generate_interregional_taxa_barplot_TYPE <- function(path_to_significant_results_tsv, dataset,titlestring, colorvector){
-  ##### test function inputs 
-  #annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/Maasllin2 Site Genus Level/genus_Luminal_taxonomy.csv", header=TRUE)
-  #luminal <- read.delim("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/Maaslin2 Type Genus Level/L6-LumRef-CLR-Colon-ComBat-SeqRunLineSexSiteType-1-MsID/significant_results.tsv")
-  #luminal <- read.delim("CS-Facility-Analysis/Site_L6/L6-DCvsAll-CLR-Lum-ComBat-SeqRunSexSite_General-1-MsID/significant_results.tsv")
-  #luminal <- read.delim("Humanized-Biogeography-Analysis/Source RPCA/Hum/Maaslin2 Site Genus/L6-DCvsAll-CLR-Lum-ComBat-SeqRunSexSite_General-1-MsID/significant_results.tsv")
-  
-  #cols <- viridis::viridis(2)
-  #####
-  
-  luminal<-read.table(path_to_significant_results_tsv, header=TRUE)
-  luminal <- luminal %>% filter(metadata=="Type" & qval<0.05)
-  cols=c(colorvector)
-  
-  
-  if(dataset=="ucla_original"){
-    annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/Maaslin2 Type Genus Level/genus_taxonomy.csv", header=TRUE)
-    luminal$feature<-gsub("X", "", luminal$feature)
-    
-  }
-  
-  
-  if(dataset=="ucla_validation"){
-    annotation <- read.csv("ImmDef-Mouse-Biogeography-Analysis/genus_Mucosal_taxonomy.csv", header=TRUE)
-    annotation$feature<-annotation$X.OTU.ID
-    annotation$feature<-gsub("/",".",annotation$feature)
-    annotation$feature<-gsub("-",".",annotation$feature)
-  }
-  
-  if(dataset=="cs"){
-    annotation <- read.csv("CS-Facility-Analysis/Type_L6/genus_taxonomy.csv", header=TRUE)
-    annotation$feature<-gsub("; ",".",annotation$feature)
-    annotation$feature<-gsub(".s__.*","",annotation$feature)
-    annotation$feature<-gsub("-",".",annotation$feature)
-    annotation$feature<-gsub("/",".",annotation$feature)
-  }
-  
-  if(dataset=="spf_gavage"){
-    annotation <- read.csv("Humanized-Biogeography-Analysis/Genus_Taxonomy.csv", header=TRUE)
-    annotation <- select(annotation, -c("X.OTU.ID", "QIIME_seqs"))
-    annotation$feature<-annotation$taxonomy
-    annotation$feature<-gsub("; ",".",annotation$feature)
-    annotation$feature<-gsub("\\.s__.*","",annotation$feature)
-    annotation$feature<-gsub("-",".",annotation$feature)
-    annotation$feature<-gsub("/",".",annotation$feature)
-  }
-  
-  if(dataset=="hum_gavage"){
-    annotation <- read.csv("Humanized-Biogeography-Analysis/Genus_Taxonomy.csv", header=TRUE)
-    annotation <- select(annotation, -c("X.OTU.ID", "QIIME_seqs"))
-    annotation$feature<-annotation$taxonomy
-    annotation$feature<-gsub("; ",".",annotation$feature)
-    annotation$feature<-gsub("\\.s__.*","",annotation$feature)
-    annotation$feature<-gsub("-",".",annotation$feature)
-    annotation$feature<-gsub("/",".",annotation$feature)
-  }
-  
-  data<- (merge(luminal, annotation, by = 'feature'))
-  testing <- luminal$feature
-  testing2<-(data$feature)
-  print("Dropped features: (should say 0 )")
-  print(c(setdiff(testing, testing2), setdiff(testing2, testing)))
-  
-  
-  data <- data %>% select(c("feature","coef", "qval", "Phylum", "Genus"))
-  data <- unique(data)
-  data$Family_Genus<-paste(data$Family,data$Genus,sep=" : ")
-  data$Phylum_Genus<-paste(data$Phylum,data$Genus,sep=" : ")
-  
-  # Make plot 
-  res_plot <- data %>% select(c("coef", "qval","Genus"))
-  res_plot <- unique(res_plot)
-  res_plot <- res_plot %>%
-    mutate(site = ifelse(coef< 0, "Luminal", "Mucosal"))
-  
-  y = tapply(res_plot$coef, res_plot$Genus, function(y) mean(y))  # orders the genera by the highest fold change of any ASV in the genus; can change max(y) to mean(y) if you want to order genera by the average log2 fold change
-  y = sort(y, FALSE)   #switch to TRUE to reverse direction
-  res_plot$Genus= factor(as.character(res_plot$Genus), levels = names(y))
-  
-  g1<- res_plot %>%
-    arrange(coef) %>%
-    filter(qval < 0.05, abs(coef) > 0) %>%
-    ggplot2::ggplot(aes(coef, Genus, fill = site)) +
     geom_bar(stat = "identity") +
     cowplot::theme_cowplot(12) +
     theme(axis.text.y = element_text(face = "italic")) +
