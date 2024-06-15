@@ -1,8 +1,7 @@
-
 PERMANOVA_repeat_measures <- function(
-  D, permute_within, blocks = NULL, block_data, permutations=999,
-  metadata_order = c(names(permute_within), names(block_data)),
-  na.rm=F) {
+    D, permute_within, blocks = NULL, block_data, permutations=999,
+    metadata_order = c(names(permute_within), names(block_data)),
+    na.rm=F) {
   
   # Make sure D is a dist object
   if (class(D) != "dist") {
@@ -118,7 +117,7 @@ PERMANOVA_repeat_measures <- function(
   
   # Test statistic from non-permuted data
   mtdat <- cbind(permute_within, block_data[blocks,,drop=F])
-  ad <- adonis2(D ~ ., permutations=0, data=mtdat[, metadata_order, drop=F])
+  ad <- adonis(D ~ ., permutations=0, data=mtdat[, metadata_order, drop=F])
   R2 <- ad$aov.tab$R2
   names(R2) <- rownames(ad$aov.tab)
   
@@ -130,7 +129,7 @@ PERMANOVA_repeat_measures <- function(
     mtdat <- cbind(
       permute_within[within.i,,drop=F],
       block_data[block.i,,drop=F][blocks,,drop=F])
-    perm.ad <- adonis2(D ~ ., permutations=0, data=mtdat[, metadata_order, drop=F])
+    perm.ad <- adonis(D ~ ., permutations=0, data=mtdat[, metadata_order, drop=F])
     
     nullsamples[,i] <- perm.ad$aov.tab$R2
   }
@@ -162,6 +161,7 @@ PERMANOVA_repeat_measures <- function(
 #' @param permute_columns_vector a character vector containing names of metadata columns that repeat per subject (e.g. Timepoint)
 #' @param subject_metadata_vector a character vector containing names of metadata columns consistent for each subject with MouseID as the last element (e.g. Age, Sex, MouseID)
 #' @return res.aov object from adonis
+#' @example run_repeated_PERMANOVA(path_to_distance_matrix_tsv = "CS-Facility-Analysis/RPCA/rpca_dm/dm_rpca_Luminal_Colon_CS-Facility-ComBat-Adjusted-ASV.qza.txt/distance-matrix.tsv", path_to_metadata_csv = "CS-Facility-Analysis/CS_Facility_Metadata.csv",permute_columns_vector = permute_within,subject_metadata_vector=subject_data)
 #' @export 
 #'
 run_repeated_PERMANOVA <- function(path_to_distance_matrix_tsv,path_to_metadata_csv,permute_columns_vector, subject_metadata_vector){

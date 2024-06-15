@@ -42,12 +42,12 @@ generate_adiv_plots <- function(input_data, input_metadata, X, Y, fillvariable, 
   
   #Shorten site names 
   data$Type= factor(data$Type, levels=c("Luminal", "Mucosal"))
-  data$Type= plyr::revalue(data$Type, c("Luminal" = "Lum", "Mucosal" = "Muc"))
+  data$Type= plyr::revalue(data$Type, c("Luminal" = "L", "Mucosal" = "M"))
   data$Site = factor(data$Site, levels= c("Distal_Colon", "Proximal_Colon", "Cecum", "Ileum", "Jejunum", "Duodenum"))
-  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Proximal_Colon"="PC", "Cecum"= "Cec", "Ileum"="Ile", "Jejunum" = "Jej", "Duodenum"= "Duo"))
+  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Proximal_Colon"="PC", "Cecum"= "C", "Ileum"="I", "Jejunum" = "J", "Duodenum"= "D"))
   
   #Ensure correct ordering of levels 
-  data$Site <- factor(data$Site, levels = c("Duo","Jej", "Ile","Cec","PC","DC"))
+  data$Site <- factor(data$Site, levels = c("D","J", "I","C","PC","DC"))
  
   
   ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
@@ -65,18 +65,25 @@ generate_adiv_plots_shotgun <- function(chao1_filepath,
                                         pielou_filepath,
                                         shannon_filepath,
                                         metadata_filepath, X, Y, fillvariable, min, max){
-  chao1<- readr::read_delim(here(chao1_filepath),delim="\t")
-  otus<- readr::read_delim(here(otus_filepath),delim="\t")
-  pielou<- readr::read_delim(here(pielou_filepath),delim="\t")
-  shannon<- readr::read_delim(here(shannon_filepath),delim="\t")
+  #chao1<- read.delim("Shotgun/alpha_diversity/alpha_min_500000_CS_SPF_BioGeo_Shotgun_ASV/chao1_dir/alpha-diversity.tsv")
+  #otus <- read.delim("Shotgun/alpha_diversity/alpha_min_500000_CS_SPF_BioGeo_Shotgun_ASV/otus_dir/alpha-diversity.tsv")
+  #pielou<- read.delim("Shotgun/alpha_diversity/alpha_min_500000_CS_SPF_BioGeo_Shotgun_ASV/pielou_e_dir/alpha-diversity.tsv")
+  #shannon <- read.delim("Shotgun/alpha_diversity/alpha_min_500000_CS_SPF_BioGeo_Shotgun_ASV/shannon_dir/alpha-diversity.tsv")
+  #metadata <- read.delim("Shotgun/starting_files/BioGeo_Shotgun_Metadata.tsv")
+  
+  chao1<- read.delim(here(chao1_filepath))
+  otus<- read.delim(here(otus_filepath))
+  pielou<- read.delim(here(pielou_filepath))
+  shannon<- read.delim(here(shannon_filepath))
   
   names(chao1)
-  temp1<- merge(chao1,otus, by="...1")
-  temp2<- merge(pielou,shannon, by="...1")
-  data<-merge(temp1,temp2,by="...1")
-  data$sampleid <- data$`...1`
+  temp1<- merge(chao1,otus, by="X")
+  temp2<- merge(pielou,shannon, by="X")
+  data<-merge(temp1,temp2,by="X")
+  data$sampleid <- data$`X`
+  data$sampleid <- gsub("-",".",data$sampleid)
   
-  metadata <-readr::read_delim(here(metadata_filepath),delim = "\t") #mapping file
+  metadata <-read.delim(here(metadata_filepath)) #mapping file
   site_metadata <- metadata %>% select("Site", "sampleid")
   intermediate<- (merge(data, site_metadata, by = 'sampleid'))
   data<- intermediate
@@ -89,13 +96,47 @@ generate_adiv_plots_shotgun <- function(chao1_filepath,
   
   data$Site <- factor(data$Site, levels = c("Jej","DC"))
 
-  ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
+  plot <- ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
     geom_violin(alpha=0.25,position=position_dodge(width=.75),size=1,color="black",draw_quantiles=c(0.5))+
     scale_fill_viridis_d()+
     geom_point(size=2,position=position_jitter(width=0.25),alpha=1)+
     theme_cowplot(12) +
     ylim(min,max) +
     theme(legend.position = "none")
+  
+    return(plot)
+  
+}
+
+merge_adiv_shotgun <- function(chao1_filepath,
+                                        otus_filepath,
+                                        pielou_filepath,
+                                        shannon_filepath,
+                                        metadata_filepath){
+  #chao1<- read.delim("Shotgun/alpha_diversity/alpha_min_500000_CS_SPF_BioGeo_Shotgun_ASV/chao1_dir/alpha-diversity.tsv")
+  #otus <- read.delim("Shotgun/alpha_diversity/alpha_min_500000_CS_SPF_BioGeo_Shotgun_ASV/otus_dir/alpha-diversity.tsv")
+  #pielou<- read.delim("Shotgun/alpha_diversity/alpha_min_500000_CS_SPF_BioGeo_Shotgun_ASV/pielou_e_dir/alpha-diversity.tsv")
+  #shannon <- read.delim("Shotgun/alpha_diversity/alpha_min_500000_CS_SPF_BioGeo_Shotgun_ASV/shannon_dir/alpha-diversity.tsv")
+  #metadata <- read.delim("Shotgun/starting_files/BioGeo_Shotgun_Metadata.tsv")
+  
+  chao1<- read.delim(here(chao1_filepath))
+  otus<- read.delim(here(otus_filepath))
+  pielou<- read.delim(here(pielou_filepath))
+  shannon<- read.delim(here(shannon_filepath))
+  
+  names(chao1)
+  temp1<- merge(chao1,otus, by="X")
+  temp2<- merge(pielou,shannon, by="X")
+  data<-merge(temp1,temp2,by="X")
+  data$sampleid <- data$`X`
+  data$sampleid <- gsub("-",".",data$sampleid)
+  
+  metadata <-read.delim(here(metadata_filepath)) #mapping file
+  site_metadata <- metadata
+  intermediate<- (merge(data, site_metadata, by = 'sampleid'))
+  data<- intermediate
+  
+  return(data)
   
 }
 

@@ -47,7 +47,7 @@ generate_pcoA_plots <- function(ordination_file, metadata, title, colorvariable,
   data$Site_General<-factor(data$Site_General, levels=c("SI", "Colon"))
   #data$Microbiota <-factor(data$Microbiota, levels=c("Humanized", "Cedars_SPF"))
   data$Site = factor(data$Site, levels= c("Distal_Colon", "Proximal_Colon", "Cecum", "Ileum", "Jejunum", "Duodenum"))
-  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Proximal_Colon"="PC", "Cecum"= "Cec", "Ileum"="Ile", "Jejunum" = "Jej", "Duodenum"= "Duo"))
+  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Proximal_Colon"="PC", "Cecum"= "C", "Ileum"="I", "Jejunum" = "J", "Duodenum"= "D"))
   
   colorvariable <- as.factor(colorvariable)
   if(colorvariable =="Site"){
@@ -65,7 +65,7 @@ generate_pcoA_plots <- function(ordination_file, metadata, title, colorvariable,
     p
   }
   else if (colorvariable =="Type"){
-    data$Type = revalue(data$Type, c("Luminal"="Lum", "Mucosal"="Muc"))
+    data$Type = plyr::revalue(data$Type, c("Luminal"="L", "Mucosal"="M"))
     p<- ggplot2::ggplot(data, aes(x=PC1, y=PC2, colour=Type)) + 
       #geom_point(size=3) + 
       geom_point(aes(fill=Type), colour="black", pch=21, size=3) +
@@ -120,7 +120,7 @@ generate_pcoA_plots_shotgun <- function(ordination_file, metadata, title, colorv
   
   #declare factors
   data$Site = factor(data$Site, levels= c("Distal_Colon","Jejunum"))
-  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Jejunum" = "Jej"))
+  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Jejunum" = "J"))
   data$PC1 <- as.numeric(data$PC1)
   data$PC2 <- as.numeric(data$PC2)
   colorvariable <- as.factor(colorvariable)

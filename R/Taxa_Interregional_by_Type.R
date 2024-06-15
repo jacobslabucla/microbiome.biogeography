@@ -9,6 +9,95 @@
 #' @return a ggplot2 object encoding a heatmap
 #' @export 
 
+generate_interregional_taxa_barplot_shotgun_only_named_species <- function(path_to_significant_results_tsv, titlestring, colorvector){
+  ##### test function inputs 
+  #annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/Maasllin2 Site Genus Level/genus_Luminal_taxonomy.csv", header=TRUE)
+  #luminal <- read.delim("Regional-Mouse-Biogeography-Analysis/2021-8-Microbiome-Batch-Correction-Analysis/Maaslin2 Type Genus Level/L6-LumRef-CLR-Colon-ComBat-SeqRunLineSexSiteType-1-MsID/significant_results.tsv")
+  #luminal <- read.delim("CS-Facility-Analysis/Site_L6/L6-DCvsAll-CLR-Lum-ComBat-SeqRunSexSite_General-1-MsID/significant_results.tsv")
+  #luminal <- read.delim("Humanized-Biogeography-Analysis/Source RPCA/Hum/Maaslin2 Site Genus/L6-DCvsAll-CLR-Lum-ComBat-SeqRunSexSite_General-1-MsID/significant_results.tsv")
+  #luminal <- read.delim("Shotgun/UCLA_O_SPF/Species_DCvsJej_CLR_LineSexSite-1-MsID/significant_results.tsv")
+  #cols <- viridis::viridis(2)
+  #####
+  luminal<-readr::read_delim(here(path_to_significant_results_tsv),delim="\t")
+  significant_taxa <- luminal %>% filter(metadata=="Site" & qval<0.05)
+  df <- significant_taxa$feature
+  df<-as.data.frame(df)
+  df$feature <- df[,1]
+  
+  df$Phylum <- gsub(".*\\.p__", "", df$feature)
+  df$Phylum <- gsub("\\.c__.*", "", df$Phylum)
+  df$Order <- gsub(".*\\.o__", "", df$feature)
+  df$Order <- gsub("\\.f__.*", "", df$Order)
+  df$Order <- paste0(df$Order, " (o)")
+  df$Family <- gsub(".*\\.f__", "", df$feature)
+  df$Family <- gsub("\\.g__.*", "", df$Family)
+  df$Family<- paste0(df$Family, " (f)")
+  df$Genus <- gsub(".*\\.g__", "", df$feature)
+  df$Genus <- gsub("\\.g__.*", "", df$Genus)
+  df$Genus<- paste0(df$Genus, " (g)")
+  df$Species <- gsub(".*\\.s__", "", df$feature)
+  
+  df$Family_Species <- paste(df$Family,  gsub("^.*_","",df$Species))
+  df$Order_Species <- paste(df$Order,  gsub("^.*_","",df$Species))
+  
+  df <- df %>%
+    mutate(annotation = ifelse(!startsWith(Species, "GGB"), Species, Family_Species))
+  
+  luminal<-readr::read_delim(here(path_to_significant_results_tsv),delim="\t")
+  luminal <- luminal %>% filter(metadata=="Site" & qval<0.05)
+  cols=c(colorvector)
+  
+  
+  data<- (merge(luminal, df, by = 'feature'))
+  testing <- luminal$feature
+  testing2<-(data$feature)
+  print("Dropped features: (should say 0 )")
+  print(c(setdiff(testing, testing2), setdiff(testing2, testing)))
+  
+  
+  data <- data %>% select(c("feature","coef", "qval", "Species","Phylum"))
+  data <- data[!grepl("SGB", data$Species), ]
+  data <- data[!grepl("unclassified", data$Phylum), ]
+  
+  data <- unique(data)
+  
+  # Make plot 
+  res_plot <- data %>% select(c("coef", "qval","Species","Phylum"))
+  res_plot <- unique(res_plot)
+  res_plot <- res_plot %>%
+    mutate(site = ifelse(coef< 0, "Distal_Colon", "Jejunum"))
+  
+  y = tapply(res_plot$coef, res_plot$Species, function(y) mean(y))  # orders the genera by the highest fold change of any ASV in the genus; can change max(y) to mean(y) if you want to order genera by the average log2 fold change
+  y = sort(y, FALSE)   #switch to TRUE to reverse direction
+  res_plot$Species= factor(as.character(res_plot$Species), levels = names(y))
+  
+  
+  ggplot_data <- res_plot %>%
+    arrange(coef) %>%
+    filter(qval < 0.05, abs(coef) > 0) 
+  
+  
+  g1<- res_plot %>%
+    arrange(coef) %>%
+    filter(qval < 0.05, abs(coef) > 0) %>%
+    ggplot2::ggplot(aes(coef, Species, fill = site)) +
+    geom_bar(stat = "identity") +
+    cowplot::theme_cowplot(12) +
+    theme(axis.text.y = element_text(face = "italic")) +
+    scale_fill_manual(values = cols) +
+    #geom_text(aes(label = annotation, color = Phylum), hjust = -0.2) +  # Add text labels colored by Phylum
+    #scale_fill_gradientn(colors = cols,breaks = bk) +
+    labs(x = "Effect size (Jejunum/Distal_Colon)",
+         y = "",
+         fill = "") +
+    theme(legend.position = "none")+
+    ggtitle({{titlestring}}) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  newList <- list(dataframe=ggplot_data,plot=g1)
+  return(newList)
+  
+}
 
 
 generate_interregional_taxa_barplot_shotgun <- function(path_to_significant_results_tsv, titlestring, colorvector){
