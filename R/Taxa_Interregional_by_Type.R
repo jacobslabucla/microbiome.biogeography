@@ -317,6 +317,7 @@ generate_interregional_taxa_barplot_TYPE <- function(path_to_significant_results
   df <- df %>%
     mutate(annotation = ifelse(level1!= " (f)", level1, Order))
   
+  df <- df %>% filter(annotation != " (o)")
   luminal<-readr::read_delim(here(path_to_significant_results_tsv),delim="\t")
   luminal <- luminal %>% filter(metadata=="Type" & qval<0.05)
   cols=c(colorvector)

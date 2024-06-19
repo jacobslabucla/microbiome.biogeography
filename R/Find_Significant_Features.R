@@ -53,27 +53,27 @@ find_features_union_for_type_heatmap <- function(duo_filepath,
                                                  dc_filepath) {
   duodenum<-read.delim(here::here(
     path=duo_filepath))
-  duodenum_significant<-filter(duodenum, metadata=="Type" & value=="Mucosal" &qval<0.05)
+  duodenum_significant<-dplyr::filter(duodenum, metadata=="Type" & value=="Mucosal" &qval<0.05)
   a<-duodenum_significant$feature
-  jejunum<-read.delim(here(
+  jejunum<-read.delim(here::here(
     path=jej_filepath))
-  jejunum_significant<-filter(jejunum, metadata=="Type" & value=="Mucosal" &qval<0.05)
+  jejunum_significant<-dplyr::filter(jejunum, metadata=="Type" & value=="Mucosal" &qval<0.05)
   b<-jejunum_significant$feature
-  ileum<-read.delim(here(
+  ileum<-read.delim(here::here(
     path=ile_filepath))
-  ileum_significant<-filter(jejunum, metadata=="Type" & value=="Mucosal" &qval<0.05)
+  ileum_significant<-dplyr::filter(jejunum, metadata=="Type" & value=="Mucosal" &qval<0.05)
   c<-ileum_significant$feature
-  cecum<-read.delim(here(
+  cecum<-read.delim(here::here(
     path=cec_filepath))
-  cecum_significant<-filter(cecum, metadata=="Type" & value=="Mucosal" &qval<0.05)
+  cecum_significant<-dplyr::filter(cecum, metadata=="Type" & value=="Mucosal" &qval<0.05)
   d<-cecum_significant$feature  
-  pc<-read.delim(here(
+  pc<-read.delim(here::here(
     path=pc_filepath))
-  pc_significant<-filter(pc, metadata=="Type" & value=="Mucosal" &qval<0.05)
+  pc_significant<-dplyr::filter(pc, metadata=="Type" & value=="Mucosal" &qval<0.05)
   e<-pc_significant$feature  
-  DC<-read.delim(here(
+  DC<-read.delim(here::here(
     path=dc_filepath))
-  DC_significant<-filter(DC, metadata=="Type" & value=="Mucosal" &qval<0.05)
+  DC_significant<-dplyr::filter(DC, metadata=="Type" & value=="Mucosal" &qval<0.05)
   f<-DC_significant$feature  
   joinab<- union(a,b)
   joincd<- union(c,d)

@@ -197,7 +197,7 @@ process_taxonomy_data <- function(file_path) {
   taxa <- gsub(";",".",taxa)
   colnames <- strsplit(taxa, ".o__")
   
-  order=new_list(length(colnames(input_data)))
+  order=rlang::new_list(length(colnames(input_data)))
   i=1
   for (i in 1:length(colnames)) {
     order[i] <- colnames[[i]][2]
