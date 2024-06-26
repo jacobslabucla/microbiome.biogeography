@@ -92,9 +92,9 @@ generate_adiv_plots_shotgun <- function(chao1_filepath,
   print(summary(data$pielou_evenness))
   
   #Shorten site names 
-  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Jejunum" = "Jej"))
+  data$Site = plyr::revalue(data$Site, c("Distal_Colon"="DC", "Jejunum" = "J"))
   
-  data$Site <- factor(data$Site, levels = c("Jej","DC"))
+  data$Site <- factor(data$Site, levels = c("J","DC"))
 
   plot <- ggplot(data=data,aes(x={{X}},y={{Y}}, fill={{fillvariable}})) + 
     geom_violin(alpha=0.25,position=position_dodge(width=.75),size=1,color="black",draw_quantiles=c(0.5))+

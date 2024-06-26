@@ -77,7 +77,7 @@ generate_GMM_heat_map_by_site <- function(path_to_all_results_tsv, targetvector,
   if(min(data$coef_d) < (0) & min(data$coef_d)>(-0.5)){
     data$coef_d[data$coef_d < (0) & data$coef_d>=(-0.5)] <- (0)
   }
-  data$value = revalue(data$value, c("Distal_Colon"="DC", "Proximal_Colon" = "PC", "Cecum" ="Cec","Ileum"="Ile", "Jejunum"="Jej", "Duodenum"= "Duo"))
+  data$value = plyr::revalue(data$value, c("Distal_Colon"="DC", "Proximal_Colon" = "PC", "Cecum" ="Cec","Ileum"="Ile", "Jejunum"="Jej", "Duodenum"= "Duo"))
   data$value = factor(data$value, levels=c("Duo", "Jej", "Ile", "Cec", "PC", "DC"))
   print(summary(data$coef_d))
   

@@ -113,7 +113,7 @@ generate_pcoA_plots_shotgun <- function(ordination_file, metadata, title, colorv
   colnames(data)[2] <- c("PC1")  
   colnames(data)[3] <- c("PC2")  
   colnames(data)[4] <- c("PC3")  
-  # data$SampleID<-gsub(".","",data$SampleID)
+  data$sampleid<-gsub("-",".",data$sampleid)
   #append metadata
   intermediate<- (merge(data, metadata, by = 'sampleid'))
   data<- intermediate
