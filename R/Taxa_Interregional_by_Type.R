@@ -226,6 +226,7 @@ generate_interregional_taxa_barplot_SITE <- function(path_to_significant_results
   df <- df %>%
     mutate(annotation = ifelse(level1!= " (f)", level1, Order))
   
+  df <- df %>% filter(annotation != " (o)")
   luminal<-readr::read_delim(here(path_to_significant_results_tsv),delim="\t")
   luminal <- luminal %>% filter(metadata=="Site_General" & qval<0.05)
   cols=c(colorvector)
@@ -248,6 +249,8 @@ generate_interregional_taxa_barplot_SITE <- function(path_to_significant_results
   res_plot <- unique(res_plot)
   res_plot <- res_plot %>%
     filter(!grepl("Mitochondria", annotation))
+  res_plot <- res_plot %>%
+    filter(!grepl("Chloroplast", annotation))
   res_plot <- res_plot %>%
     mutate(site = ifelse(coef< 0, "Colon", "SI"))
   
@@ -278,7 +281,8 @@ generate_interregional_taxa_barplot_SITE <- function(path_to_significant_results
     ggtitle({{titlestring}}) +
     theme(plot.title = element_text(hjust = 0.5))
   
-  return(g1)
+  newList <- list(dataframe=ggplot_data,plot=g1)
+  return(newList)
   
 }
 
@@ -345,6 +349,9 @@ generate_interregional_taxa_barplot_TYPE <- function(path_to_significant_results
   y = sort(y, FALSE)   #switch to TRUE to reverse direction
   res_plot$annotation= factor(as.character(res_plot$annotation), levels = names(y))
   
+  ggplot_data <- res_plot %>%
+    arrange(coef) %>%
+    filter(qval < 0.05, abs(coef) > 0)
   g1<- res_plot %>%
     arrange(coef) %>%
     filter(qval < 0.05, abs(coef) > 0) %>%
@@ -360,6 +367,7 @@ generate_interregional_taxa_barplot_TYPE <- function(path_to_significant_results
     ggtitle({{titlestring}}) +
     theme(plot.title = element_text(hjust = 0.5))
   
-  return(g1)
+  newList <- list(dataframe=ggplot_data,plot=g1)
+  return(newList)
 }
 

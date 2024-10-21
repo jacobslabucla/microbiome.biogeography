@@ -37,6 +37,10 @@ generate_interregional_GBM_barplot <- function(path_to_all_results_tsv, path_to_
   y = sort(y, FALSE)   #switch to TRUE to reverse direction
   res_plot$annotation= factor(as.character(res_plot$annotation), levels = names(y))
 
+  ggplot_data <-  g1<- res_plot %>%
+    arrange(coef) %>%
+    filter(qval < 0.05, abs(coef) > 0)
+  
   g1<- res_plot %>%
       arrange(coef) %>%
       filter(qval < 0.05, abs(coef) > 0) %>%
@@ -53,6 +57,61 @@ generate_interregional_GBM_barplot <- function(path_to_all_results_tsv, path_to_
       theme(plot.title = element_text(hjust = 0.5))
 
 
+  newList <- list(dataframe=ggplot_data,plot=g1)
+  return(newList)
+}
 
-  return(g1)
+generate_interregional_GBM_barplot_shotgun <- function(path_to_all_results_tsv, path_to_Module_Key, titlestring, colorvector){
+  ##### test function inputs
+  annotation <- read.csv("GBM_Module_Key.csv", header=TRUE)
+  luminal <- read.delim("Shotgun/UCLA_O_SPF/GBM-DCvsJej-CLR-UCLA-ComBat-SeqRunLineSexSite-1-MsID/all_results.tsv")
+  
+  #cols <- viridis::viridis(2)
+  #####
+  
+  luminal<-read.table(path_to_all_results_tsv, header=TRUE)
+  luminal <- luminal %>% filter(metadata=="Site" & pval<0.05)
+  
+  annotation <- read.csv(path_to_Module_Key, header=TRUE)
+  
+  data<- (merge(luminal, annotation, by = 'feature'))
+  cols=c(colorvector)
+  
+  
+  res_plot <- data %>% select(c("coef", "pval","qval","annotation"))
+  res_plot <- unique(res_plot)
+  res_plot <- res_plot %>%
+    mutate(site = ifelse(coef< 0, "Distal_Colon", "Jejunum"))
+  
+  y = tapply(res_plot$coef, res_plot$annotation, function(y) mean(y))  # orders the genera by the highest fold change of any ASV in the genus; can change max(y) to mean(y) if you want to order genera by the average log2 fold change
+  y = sort(y, FALSE)   #switch to TRUE to reverse direction
+  res_plot$annotation= factor(as.character(res_plot$annotation), levels = names(y))
+  
+  ggplot_data <-  res_plot %>%
+    arrange(coef) %>%
+    filter(pval < 0.05, abs(coef) > 0)
+  
+  res_plot <- res_plot %>% 
+    mutate(qval_rounded = round(qval, 2))
+  
+  g1<- res_plot %>%
+    arrange(coef) %>%
+    filter(pval < 0.05, abs(coef) > 0) %>%
+    ggplot2::ggplot(aes(coef, annotation, fill = site)) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(label = qval_rounded),position = position_stack(vjust = 0.5), 
+              colour = "white")+
+    cowplot::theme_cowplot(12) +
+    theme(axis.text.y = element_text(face = "italic")) +
+    scale_fill_manual(values = cols) +
+    labs(x = "Effect size (Jejunum/Distal_Colon)",
+         y = "",
+         fill = "") +
+    theme(legend.position = "none")+
+    ggtitle({{titlestring}}) +
+    theme(plot.title = element_text(hjust = 0.5))
+  
+  
+  newList <- list(dataframe=ggplot_data,plot=g1)
+  return(newList)
 }

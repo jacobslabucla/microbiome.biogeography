@@ -12,7 +12,7 @@
 #' @export 
 #' 
 #' 
-process_results_for_upset_plot <- function(file_paths, cohort_prefixes) {
+process_results_for_upset_plot <- function(file_paths, cohort_prefixes, filter_by="Site") {
   data_all <- NULL
   
   for (i in seq_along(file_paths)) {
@@ -23,7 +23,7 @@ process_results_for_upset_plot <- function(file_paths, cohort_prefixes) {
     results <- read.table(here::here(file_path), header = TRUE)
     
     # Filter the results for the specified feature
-    data <- dplyr::filter(results, metadata == "Site" & qval<0.05)
+    data <- dplyr::filter(results, metadata == {{filter_by}} & qval<0.05)
   
     # Add a cohort variable
     cohort <- paste0(cohort_prefix)

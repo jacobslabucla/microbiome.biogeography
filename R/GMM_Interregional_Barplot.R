@@ -183,13 +183,14 @@ generate_interregional_GMM_barplot <- function(path_to_all_results_tsv, path_to_
 generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, path_to_Module_Key, ystring,titlestring, colorvector){
   ##### test function inputs 
   annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Pathway-Batch-Correction/GOMIXER/Revised_Module_Key.csv", header=TRUE)
+  
   luminal <- read.delim("Shotgun/UCLA_O_SPF/GMM-DCvsJej-CLR-UCLA-ComBat-SeqRunLineSexSite-1-MsID/significant_results.tsv")
   
   #cols <- viridis::viridis(2)
   #####
   
   luminal<-read.table(path_to_all_results_tsv, header=TRUE)
-  luminal <- luminal %>% filter(metadata=="Site" & qval<0.05)
+  luminal <- luminal %>% filter(metadata=="Site" & pval<0.05)
   
   annotation <- read.csv(path_to_Module_Key, header=TRUE)
   
@@ -223,7 +224,7 @@ generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, 
   
   if(ystring=="hierachy_annotations"){
     
-    res_plot <- data %>% select(c("coef", "qval","hierachy_annotations"))
+    res_plot <- data %>% select(c("coef", "pval","qval","hierachy_annotations"))
     res_plot <- unique(res_plot)
     res_plot <- res_plot %>%
       mutate(site = ifelse(coef< 0, "Distal_Colon", "Jejunum"))
@@ -234,7 +235,7 @@ generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, 
     
     g1<- res_plot %>%
       arrange(coef) %>%
-      filter(qval < 0.05, abs(coef) > 0) %>%
+      filter(pval < 0.05, abs(coef) > 0) %>%
       ggplot2::ggplot(aes(coef, hierachy_annotations, fill = site)) +
       geom_bar(stat = "identity") +
       cowplot::theme_cowplot(12) +
@@ -249,7 +250,7 @@ generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, 
     
   }
   else if(ystring=="metabolic_map"){
-    res_plot <- data %>% select(c("coef", "qval","metabolic_map"))
+    res_plot <- data %>% select(c("coef", "pval","qval","metabolic_map"))
     res_plot <- unique(res_plot)
     res_plot <- res_plot %>%
       mutate(site = ifelse(coef< 0, "Distal_Colon", "Jejunum"))
@@ -258,11 +259,16 @@ generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, 
     y = sort(y, FALSE)   #switch to TRUE to reverse direction
     res_plot$metabolic_map= factor(as.character(res_plot$metabolic_map), levels = names(y))
     
+    res_plot <- res_plot %>% 
+      mutate(qval_rounded = round(qval, 2))
+    
     g1<- res_plot %>%
       arrange(coef) %>%
-      filter(qval < 0.05, abs(coef) > 0) %>%
+      filter(pval < 0.05, abs(coef) > 0) %>%
       ggplot2::ggplot(aes(coef, metabolic_map, fill = site)) +
       geom_bar(stat = "identity") +
+      geom_text(aes(label = qval_rounded),position = position_stack(vjust = 0.5), 
+                colour = "white")+
       cowplot::theme_cowplot(12) +
       theme(axis.text.y = element_text(face = "italic")) +
       scale_fill_manual(values = cols) +
@@ -275,7 +281,7 @@ generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, 
     
   }
   else if(ystring=="feature_annotations"){
-    res_plot <- data %>% select(c("coef", "qval","feature_annotations"))
+    res_plot <- data %>% select(c("coef", "pval","qval","feature_annotations"))
     res_plot <- unique(res_plot)
     res_plot <- res_plot %>%
       mutate(site = ifelse(coef< 0, "Distal_Colon", "Jejunum"))
@@ -286,7 +292,7 @@ generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, 
     
     g1<- res_plot %>%
       arrange(coef) %>%
-      filter(qval < 0.05, abs(coef) > 0) %>%
+      filter(pval < 0.05, abs(coef) > 0) %>%
       ggplot2::ggplot(aes(coef, feature_annotations, fill = site)) +
       geom_bar(stat = "identity") +
       cowplot::theme_cowplot(12) +
@@ -328,11 +334,16 @@ generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, 
     y = sort(y, FALSE)   #switch to TRUE to reverse direction
     res_plot$Map= factor(as.character(res_plot$Map), levels = names(y))
     
+    res_plot <- res_plot %>% 
+      mutate(qval_rounded = round(qval, 2))
+    
     g1<- res_plot %>%
       arrange(coef_mean) %>%
       filter(qval_d < 0.05, abs(coef_mean) > 0) %>%
       ggplot2::ggplot(aes(coef_mean, Map, fill = site)) +
       geom_bar(stat = "identity") +
+      geom_text(aes(label = qval_rounded),position = position_stack(vjust = 0.5), 
+                colour = "white")+
       cowplot::theme_cowplot(12) +
       theme(axis.text.y = element_text(face = "italic")) +
       scale_fill_manual(values = cols) +
