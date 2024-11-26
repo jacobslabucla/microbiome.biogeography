@@ -4,7 +4,7 @@
 \alias{process_results_for_upset_plot}
 \title{Generate Upset Plots for GBM and GMM}
 \usage{
-process_results_for_upset_plot(file_paths, cohort_prefixes)
+process_results_for_upset_plot(file_paths, cohort_prefixes, filter_by = "Site")
 }
 \arguments{
 \item{file_paths}{filepaths to dataframes containing statistical testing results}

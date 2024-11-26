@@ -88,7 +88,7 @@ generate_L6_taxa_plots <- function(path_to_RDS, titlestring,greppattern, fillvec
     theme(legend.position="top") +
     theme(plot.title = element_text(hjust = 0.5))+
     #guides(fill=guide_legend(nrow=8, byrow=TRUE)) +
-    theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+    theme(plot.margin = unit(c(1, 0, 0, 0), "cm"))
   
 }
 
@@ -156,15 +156,16 @@ generate_L2_taxa_plots <- function(input_data, titlestring,greppattern, fillvect
   ggplot2::ggplot(data=L2_lum, aes(x=Site, y=Value, fill=Taxa)) +
     geom_bar(stat="identity")+
     scale_fill_manual(values = cols)+
-    theme(legend.position = "right")+
+    #theme(legend.position = "right")+
     theme_cowplot(12) +
     ylab("") +
     xlab("")+
     labs(fill="")+
     ggtitle({{titlestring}}) +
-    theme(legend.position="top") +
+    #theme(legend.position="top") +
     theme(plot.title = element_text(hjust = 0.5))+
-    guides(fill=guide_legend(nrow=4, byrow=TRUE))
+    guides(fill=guide_legend(nrow=4, byrow=TRUE))+
+    theme(plot.margin = unit(c(1, 0, 0, 0), "cm"))
   
   
 }

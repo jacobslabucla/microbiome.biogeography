@@ -67,10 +67,11 @@ generate_interregional_taxa_barplot_shotgun_only_named_species <- function(path_
   res_plot <- res_plot %>%
     mutate(site = ifelse(coef< 0, "Distal_Colon", "Jejunum"))
   
+  res_plot$Species <- gsub("_"," ", res_plot$Species)
+  res_plot$Species <- gsub("\\ sp","\\ sp.",res_plot$Species)
   y = tapply(res_plot$coef, res_plot$Species, function(y) mean(y))  # orders the genera by the highest fold change of any ASV in the genus; can change max(y) to mean(y) if you want to order genera by the average log2 fold change
   y = sort(y, FALSE)   #switch to TRUE to reverse direction
-  res_plot$Species= factor(as.character(res_plot$Species), levels = names(y))
-  
+  res_plot$Species<- factor(as.character(res_plot$Species), levels = names(y))
   
   ggplot_data <- res_plot %>%
     arrange(coef) %>%
@@ -83,7 +84,7 @@ generate_interregional_taxa_barplot_shotgun_only_named_species <- function(path_
     ggplot2::ggplot(aes(coef, Species, fill = site)) +
     geom_bar(stat = "identity") +
     cowplot::theme_cowplot(12) +
-    theme(axis.text.y = element_text(face = "italic")) +
+    #theme(axis.text.y = element_text(face = "italic")) +
     scale_fill_manual(values = cols) +
     #geom_text(aes(label = annotation, color = Phylum), hjust = -0.2) +  # Add text labels colored by Phylum
     #scale_fill_gradientn(colors = cols,breaks = bk) +
@@ -92,7 +93,8 @@ generate_interregional_taxa_barplot_shotgun_only_named_species <- function(path_
          fill = "") +
     theme(legend.position = "none")+
     ggtitle({{titlestring}}) +
-    theme(plot.title = element_text(hjust = 0.5))
+    theme(plot.title = element_text(hjust = 0.5))+
+    theme(plot.title=element_text(face="plain"))
   
   newList <- list(dataframe=ggplot_data,plot=g1)
   return(newList)
