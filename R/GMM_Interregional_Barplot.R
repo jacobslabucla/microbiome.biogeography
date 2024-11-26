@@ -180,11 +180,21 @@ generate_interregional_GMM_barplot <- function(path_to_all_results_tsv, path_to_
   return(g1)
 }
 
+#' @author Julianne C. Yang, Jonathan P. Jacobs
+#' @param path_to_all_results_tsv filepath to Maaslin2/all_results.tsv
+#' @param path_to_Module_Key filepath to the GMM key with annotations for each GMM
+#' @param ystring choose between "hierachy_annotations", "feature_annotations", "metabolic_map", or "Map"
+#' @param titlestring title of plot, e.g. "Mucosal"
+#' @param colorvector character vector of two colors
+#' @return a ggplot2 object encoding a heatmap
+#' @export 
+
+
 generate_interregional_GMM_barplot_shotgun <- function(path_to_all_results_tsv, path_to_Module_Key, ystring,titlestring, colorvector){
   ##### test function inputs 
-  annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Pathway-Batch-Correction/GOMIXER/Revised_Module_Key.csv", header=TRUE)
+  #annotation <- read.csv("Regional-Mouse-Biogeography-Analysis/2021-8-Pathway-Batch-Correction/GOMIXER/Revised_Module_Key.csv", header=TRUE)
   
-  luminal <- read.delim("Shotgun/UCLA_O_SPF/GMM-DCvsJej-CLR-UCLA-ComBat-SeqRunLineSexSite-1-MsID/significant_results.tsv")
+  #luminal <- read.delim("Shotgun/UCLA_O_SPF/GMM-DCvsJej-CLR-UCLA-ComBat-SeqRunLineSexSite-1-MsID/significant_results.tsv")
   
   #cols <- viridis::viridis(2)
   #####
