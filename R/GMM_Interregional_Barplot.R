@@ -180,6 +180,7 @@ generate_interregional_GMM_barplot <- function(path_to_all_results_tsv, path_to_
   return(g1)
 }
 
+#' Generating interregional GMM barplot specific to shotgun data
 #' @author Julianne C. Yang, Jonathan P. Jacobs
 #' @param path_to_all_results_tsv filepath to Maaslin2/all_results.tsv
 #' @param path_to_Module_Key filepath to the GMM key with annotations for each GMM
